@@ -29,24 +29,22 @@ int test_access(const struct passwd *pw, const struct group *gr, const char *pat
 		return 1;
 	}
 
-	/* check for direct user access */
-	if (pw->pw_uid == st.st_uid) {
-		if ((st.st_mode & S_IRWXU) & (mode << 6)) return 0;
+	if ((st.st_mode & S_IRWXU) & (mode << 6)) {
+		/* check for direct user access */
+		if (pw->pw_uid == st.st_uid) return 0;
 	}
 
-	/* check for direct group access */
-	if (pw->pw_gid == st.st_gid) {
-		if ((st.st_mode & S_IRWXG) & (mode << 3)) return 0;
-	}
+	if ((st.st_mode & S_IRWXG) & (mode << 3)) {
+		/* check for direct group access */
+		if (pw->pw_gid == st.st_gid) return 0;
 
-	/* check for member group access */
-	if (getgrgid_r(st.st_gid, &gm, gm_buf, sizeof(gm_buf), &gm_r) != 0 || gm_r == NULL) {
-		/* failed to get the group info... don't treat this as a hard error */
-	} else {
-		int i;
-		for (i = 0; gm.gr_mem[i] != NULL; i++) {
-			if (!strcmp(gr->gr_name, gm.gr_mem[i])) {
-				if ((st.st_mode & S_IRWXG) & (mode << 3)) return 0;
+		/* check for member group access */
+		if (getgrgid_r(st.st_gid, &gm, gm_buf, sizeof(gm_buf), &gm_r) != 0 || gm_r == NULL) {
+			/* failed to get the group info... don't treat this as a hard error */
+		} else {
+			int i;
+			for (i = 0; gm.gr_mem[i] != NULL; i++) {
+				if (!strcmp(gr->gr_name, gm.gr_mem[i])) return 0;
 			}
 		}
 	}
