@@ -39,7 +39,7 @@ new: clean
 	@${MAKE} all
 
 install: ${BIN}
-	install access /bin/access -o root -g root -m4755
+	install access /bin/access -o root -g root -m0755
 
 #-------
 
