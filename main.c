@@ -23,24 +23,26 @@ int main(int argc, char *argv[]) {
 
 	if (argc >= 3) {
 		int i;
+		struct passwd *pw;
 		for (i = 0; argv[2][i] != '\0'; i++) {
 			if (!isdigit(argv[2][i])) break;
 		}
 		if (argv[2][i] == '\0') {
-			if (setuid(atoi(argv[2]))) {
-				perror("setuid()");
-				return 1;
-			}
+			pw = getpwuid(atoi(argv[2]));
 		} else {
-			struct passwd *pw;
-			if ((pw = getpwnam(argv[2])) == NULL) {
-				perror("getpwnam()");
-				return 1;
-			}
-			if (setuid(pw->pw_uid)) {
-				perror("setuid()");
-				return 1;
-			}
+			pw = getpwnam(argv[2]);
+		}
+		if (pw == NULL) {
+			perror("getpwnam()");
+			return 1;
+		}
+		if (setgid(pw->pw_gid)) {
+			perror("setgid()");
+			return 1;
+		}
+		if (setuid(pw->pw_uid)) {
+			perror("setuid()");
+			return 1;
 		}
 	}
 	
