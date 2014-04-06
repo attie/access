@@ -45,7 +45,9 @@ int main(int argc, char *argv[]) {
 	}
 	
 	if (access(argv[1], R_OK)) {
+		perror("access()");
 		return 1;
 	}
+
 	return 0;
 }
